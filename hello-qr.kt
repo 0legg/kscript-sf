@@ -11,14 +11,23 @@ exec kscript $0 "$@"
 @file:Include("qr-lib.kt")
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
+import java.util.concurrent.TimeUnit
 
 class Hello : CliktCommand() {
     private val name by option("-n", "--name", help = "Who are you happy to see").prompt("Host name")
+    private val ui by option("--ui").flag(default = false)
 
     override fun run() {
-        name.renderQR()
+        if (ui) {
+            val file = "qr.png"
+            name.renderUi(file)
+            ProcessBuilder("open", file).start().waitFor(10, TimeUnit.SECONDS)
+        } else {
+            name.renderCli()
+        }
     }
 }
 
